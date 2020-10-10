@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Kompiuterinė grafika: 1 užduotis</title>
+	</head>
+	<style>
+		.slidecontainer {
+		  width: 50%;
+		}
+		
+		.slider {
+		  -webkit-appearance: none;
+		  width: 50%;
+		  height: 25px;
+		  background: #d3d3d3;
+		  outline: none;
+		  opacity: 0.7;
+		  -webkit-transition: .2s;
+		  transition: opacity .2s;
+		}
+		
+		.slider:hover {
+		  opacity: 1;
+		}
+		
+		.slider::-webkit-slider-thumb {
+		  -webkit-appearance: none;
+		  appearance: none;
+		  width: 25px;
+		  height: 25px;
+		  background: #4CAF50;
+		  cursor: pointer;
+		}
+		
+		.slider::-moz-range-thumb {
+		  width: 25px;
+		  height: 25px;
+		  background: #4CAF50;
+		  cursor: pointer;
+		}
+		</style>
+	<body>
+		<div class="slidecontainer">
+			<h2>Slide this range slider to needed value</h2>
+			<input type="range" min="0" max="10.0" value="0" class="slider" id="myRange">
+			<p>Number of iterations: <span id="demo"></span></p>
+		  </div>
+		<button onclick="animateFractal1()">1st Fractal</button>
+		<button onclick="animateFractal2()">2nd Fractal</button>
+		<button onclick="animateFractal3()">3rd Fractal</button>
+		<button onclick="animateFractal4()">4th Fractal</button>
+		<div style="vertical-align: top;text-align: right;">
+			<canvas id="canvas" width="900" height="600">
+			</canvas>
+		</div>
+	</body>
+	<script src="script.js"></script>
+</html>
