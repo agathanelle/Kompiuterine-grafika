@@ -22,7 +22,7 @@ function clear()
 function animateFractal1()
 {
     var i = 0;
-    var interval = setInterval(frame,100);
+    var interval = setInterval(frame,50);
     function frame()
     {
         if(i >=1) clearInterval(interval);
@@ -35,14 +35,15 @@ function animateFractal1()
             ctx.transform(vector,0,0,vector,250*i,0);
             drawShape();
             ctx.restore();
-            i+=0.1;
+            i+=0.01;
         }
     }
+   
 }
 function animateFractal2()
 {
     var i = 0;
-    var interval = setInterval(frame,100);
+    var interval = setInterval(frame,50);
     function frame()
     {
         if(i >=1) clearInterval(interval);
@@ -55,15 +56,16 @@ function animateFractal2()
             ctx.transform(vector*Math.cos(Math.PI*i),vector*Math.sin(-Math.PI*i),vector*Math.sin(Math.PI*i),vector*Math.cos(Math.PI*i),500*i,500*i);
             drawShape();
             ctx.restore();
-            i+=0.1;
+            i+=0.01;
         }
     }
+    
 }
 function animateFractal3()
 {
     var i = 0;
     var vector2;
-    var interval = setInterval(frame,100);
+    var interval = setInterval(frame,50);
     function frame()
     {
         if(i >=1) clearInterval(interval);
@@ -74,17 +76,18 @@ function animateFractal3()
             clear();
             ctx.save();
             ctx.fillStyle = '#FEE236';
-            ctx.transform(vector*Math.cos(Math.PI/2*i),vector*Math.sin(Math.PI/2*i),vector2*Math.sin(-Math.PI/2*i),vector2*Math.cos(Math.PI/2*i),250*i,500*i);
+            ctx.transform(vector2*Math.cos(Math.PI/2*i),vector2*Math.sin(-Math.PI/2*i),vector*Math.sin(Math.PI/2*i),vector*Math.cos(Math.PI/2*i),250*i,500*i);
             drawShape();
             ctx.restore();
-            i+=0.1;
+            i+=0.01;
         }
     }
+    
 }
 function animateFractal4()
 {
     var i = 0;
-    var interval = setInterval(frame,100);
+    var interval = setInterval(frame,50);
     function frame()
     {
         if(i >=1) clearInterval(interval);
@@ -98,11 +101,11 @@ function animateFractal4()
             ctx.transform(vector2*Math.cos(Math.PI/2*i),vector2*Math.sin(Math.PI/2*i)/2,vector*Math.sin(-Math.PI/2*i)/2,vector*Math.cos(Math.PI/2*i),125*i,125*i);
             drawShape();
             ctx.restore();
-            i+=0.1;
+            i+=0.01;
         }
     }
+    
 }
-
 
 function drawShape()
 {  
