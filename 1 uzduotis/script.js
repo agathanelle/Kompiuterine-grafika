@@ -52,7 +52,7 @@ function animateFractal2()
             clear();
             ctx.save();
             ctx.fillStyle = '#B80F0A';
-            ctx.transform(vector*Math.cos(Math.PI*i),vector*Math.sin(Math.PI*i),vector*Math.sin(Math.PI*i),vector*Math.cos(Math.PI*i),500*i,500*i);
+            ctx.transform(vector*Math.cos(Math.PI*i),vector*Math.sin(-Math.PI*i),vector*Math.sin(Math.PI*i),vector*Math.cos(Math.PI*i),500*i,500*i);
             drawShape();
             ctx.restore();
             i+=0.1;
