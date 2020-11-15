@@ -10,9 +10,8 @@ $(function () {
 	
 	var controls = new function() {
 		this.count = 10;
-		this.width = 8;
-		this.radius = 3;
-		this.thickness = 1;
+		this.width = 10;
+		this.radius = 5;
 		this.gap = 1;
 		
 		this.supportRadius = 0.5;
@@ -26,7 +25,6 @@ $(function () {
 
 			controls.rotation = controls.angleDifference / (controls.count - 1);
 			controls.gap = controls.stairHeight/controls.count;
-			controls.thickness = controls.stairHeight/controls.count;
 			scene.remove(stairs);
 			var selectedObject = scene.getObjectByName('straightTube');
 			scene.remove( selectedObject );
@@ -37,7 +35,6 @@ $(function () {
 	
 	controls.rotation = controls.angleDifference / (controls.count - 1);
 	controls.gap = controls.stairHeight/controls.count;
-	controls.thickness = controls.stairHeight/controls.count;
 	stairs = createStairCase();
 	scene.add(stairs);
 	scene.add(addSpotLight());
@@ -128,8 +125,8 @@ $(function () {
 	function createStairCase(){
 		var stairs = new THREE.Object3D();
 		var metalicMaterial = new THREE.MeshPhongMaterial({color: 0x7A7F80, side: THREE.DoubleSide});
-		var verticalGeometry = new THREE.CylinderGeometry(controls.supportRadius, controls.supportRadius, (controls.thickness + controls.supportRadius)*2, 100);
-		var horizontalGeometry = new THREE.CubeGeometry(controls.supportRadius*5.5, controls.supportRadius, controls.supportRadius * 2);
+		var verticalGeometry = new THREE.CylinderGeometry(controls.supportRadius, controls.supportRadius, (controls.gap + controls.supportRadius)*2, 100);
+		var horizontalGeometry = new THREE.CubeGeometry(controls.supportRadius*5.5, controls.supportRadius, controls.supportRadius * 7);
 		var nextX = 0;
 		var nextY = 0;
 		var pointsForRails = [];
@@ -140,7 +137,7 @@ $(function () {
 			
 			if (i % 2 == 0) {
 				//kaire
-				firstStep.position.y = controls.gap + controls.thickness / 2;
+				firstStep.position.y = controls.gap *1.5;
 				firstStep.rotation.x = Math.PI/2;
 			} else {
 				//desine
@@ -154,13 +151,13 @@ $(function () {
 			step.add(createHorizontalSupport(horizontalGeometry, metalicMaterial));
 			step.add(tube);
 			
-			step.position.y = i * (controls.thickness + controls.gap);
+			step.position.y = i * controls.gap * 2;
 			step.position.x = nextX;
 			step.position.z = nextY;
 			step.rotation.y = (Math.PI / 180 * controls.rotation) * i;
 		
 			var railX = nextX + (controls.width / 2 + controls.railRadius * 4) * Math.sin( -1 * (Math.PI / 180 * controls.rotation) * i);
-			var railY = i * (controls.thickness + controls.gap) + controls.railHeight + controls.gap;
+			var railY = i * 2* controls.gap  + controls.railHeight + controls.gap;
 			var railZ = nextY + -1 * (controls.width / 2 + controls.railRadius * 4) * Math.cos(-1 *(Math.PI / 180 * controls.rotation) * i);
 			pointsForRails.push(new THREE.Vector3(railX, railY, railZ ));
 			
@@ -171,11 +168,9 @@ $(function () {
 			nextY = nextY + (controls.radius / 2 + controls.supportRadius) * Math.sin(-(Math.PI / 180 * controls.rotation) * i);
 			if (i == controls.count - 1) step.add(addSecondFloor());
 		}
-		
-		pointsForRails.push(new THREE.Vector3(nextX + (controls.width / 2 + controls.railRadius * 4) * Math.sin(-1 * (Math.PI / 180 * controls.rotation) * controls.count), controls.count * (controls.thickness + controls.gap) + controls.railHeight + controls.gap, nextY + -1 * (controls.width / 2 + controls.railRadius * 4) * Math.cos( -1 *(Math.PI / 180 * controls.rotation) * controls.count) ));
-		var tube2 = createTube(pointsForRails, 100, controls.railRadius, 30, metalicMaterial);
-		tube2.name = 'straightTube';
-		scene.add(tube2);
+		var straightTube = createTube(pointsForRails, 100, controls.railRadius, 30, metalicMaterial);
+		straightTube.name = 'straightTube';
+		scene.add(straightTube);
 		return stairs;
 	}
 	function createTube(points, tubularSegment, radius, radialSegments, material)
@@ -197,7 +192,7 @@ $(function () {
 		var verticalSupport = new THREE.Mesh(geometry, material);
 		verticalSupport.castShadow = true;		
 		verticalSupport.position.x = controls.radius / 2 + controls.supportRadius;
-		verticalSupport.position.y = controls.gap + (controls.thickness + controls.supportRadius) / 2 - controls.supportRadius;
+		verticalSupport.position.y = controls.gap + (controls.gap + controls.supportRadius) / 2 - controls.supportRadius;
 		return verticalSupport;
 	}
 	function railPoints()
@@ -214,7 +209,7 @@ $(function () {
 		var material = new THREE.MeshBasicMaterial({color:0x2A3439});
 		var plane = new THREE.Mesh(geometry, material);
 		plane.position.x = 5 + controls.radius / 2 + controls.supportRadius;
-		plane.position.y = 0.5 + controls.thickness + controls.supportRadius + controls.gap - controls.supportRadius;
+		plane.position.y = 0.5 + controls.gap*2 + controls.supportRadius - controls.supportRadius;
 		plane.rotation.x=-0.5*Math.PI;
 		plane.receiveShadow  = true;
 		return plane;
