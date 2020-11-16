@@ -95,8 +95,9 @@ $(function () {
 	function drawStair(width, height){
 		var shape = new THREE.Shape();
 		shape.moveTo(0, -height / 1.5);
-		shape.lineTo(-width / 5, -height / 1.5);
-		shape.quadraticCurveTo(-width/2, 0, -width / 4, height/1.5);
+		shape.lineTo(-width / 2, -height / 1.5);
+		shape.lineTo(-width/2, height/1.5);
+		//shape.quadraticCurveTo(-width/2, 0, -width / 4, height/1.5);
 		shape.bezierCurveTo(0, height/1.5, width /2, 0, width/2, -height/1.5);
 		shape.lineTo(0, -height / 1.5);
 		return shape;
@@ -124,7 +125,7 @@ $(function () {
 		var stairs = new THREE.Object3D();
 		var metalicMaterial = new THREE.MeshPhongMaterial({color: 0x7A7F80, side: THREE.DoubleSide});
 		var verticalGeometry = new THREE.CylinderGeometry(controls.supportRadius, controls.supportRadius, (controls.gap + controls.supportRadius)*3, 100);
-		var horizontalGeometry = new THREE.CubeGeometry(controls.supportRadius*8, controls.supportRadius, controls.supportRadius * 7);
+		var horizontalGeometry = new THREE.CubeGeometry(controls.supportRadius*7, controls.supportRadius*3, controls.supportRadius * 7);
 		var nextX = 0;
 		var nextY = 0;
 		var pointsForRails = [];
@@ -215,8 +216,8 @@ $(function () {
 	function menu()
 	{
 		var gui = new dat.GUI();
-		gui.add(controls, 'count', 2, 30).step(1).name('Laiptu skaicius').onChange(controls.redraw);
-		gui.add(controls, 'angleDifference', -180, 180).step(1).name('Posukio kampas').onChange(controls.redraw);
-		gui.add(controls, 'stairHeight', 5, 30).step(1).name('Laiptų aukstis').onChange(controls.redraw);
+		gui.add(controls, 'count', 2, 25).step(1).name('Laiptu skaicius').onChange(controls.redraw);
+		gui.add(controls, 'angleDifference', -360, 360).step(1).name('Posukio kampas').onChange(controls.redraw);
+		gui.add(controls, 'stairHeight', 8, 30).step(1).name('Laiptų aukstis').onChange(controls.redraw);
 	}
 });
