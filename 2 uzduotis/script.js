@@ -2,6 +2,7 @@ $(function () {
 	var scene = new THREE.Scene();
 	var renderer = createRenderer();
 	var camera = addCamera();
+	var width = 10;
 	
 	camera.lookAt(scene.position);
     scene.add(createPlane());
@@ -10,7 +11,6 @@ $(function () {
 	
 	var controls = new function() {
 		this.count = 10;
-		this.width = 10;
 		this.radius = 5;
 		this.gap = 1;
 		
@@ -26,8 +26,6 @@ $(function () {
 			controls.rotation = controls.angleDifference / (controls.count - 1);
 			controls.gap = controls.stairHeight/controls.count;
 			scene.remove(stairs);
-			var selectedObject = scene.getObjectByName('straightTube');
-			scene.remove( selectedObject );
 			stairs = createStairCase();
 			scene.add(stairs);
 		}
@@ -37,8 +35,8 @@ $(function () {
 	controls.gap = controls.stairHeight/controls.count;
 	stairs = createStairCase();
 	scene.add(stairs);
-	scene.add(addSpotLight());
 	scene.add(addAmbientLight());
+	scene.add(addSpotLight());
 	$("#WebGL-output").append(renderer.domElement);
 	var cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
 	menu();
@@ -82,7 +80,7 @@ $(function () {
 
 	function addAmbientLight()
 	{
-		var ambiColor = "#0c0c0c";
+		var ambiColor = "#0C0C0C";
 		var ambientLight = new THREE.AmbientLight(ambiColor);
 		return ambientLight;
 	}
@@ -105,7 +103,7 @@ $(function () {
 	}
 
 	function createStair(){
-		var extrudeSettings = {
+		var settings = {
 			amount: 0.5,
 			bevelThickness: 0.25,
 			bevelSize: 0.5,
@@ -114,7 +112,7 @@ $(function () {
 			curveSegments: 10
 		};
 
-		var step = new THREE.ExtrudeGeometry(drawStair(controls.width, controls.radius ), extrudeSettings); 
+		var step = new THREE.ExtrudeGeometry(drawStair(10, 5), settings); 
 		var material = new THREE.MeshLambertMaterial({ color: 0xF2CF9D });
 		var mesh = new THREE.Mesh( step, material ) ;
 		mesh.rotation.z = Math.PI / 2;	
@@ -125,8 +123,8 @@ $(function () {
 	function createStairCase(){
 		var stairs = new THREE.Object3D();
 		var metalicMaterial = new THREE.MeshPhongMaterial({color: 0x7A7F80, side: THREE.DoubleSide});
-		var verticalGeometry = new THREE.CylinderGeometry(controls.supportRadius, controls.supportRadius, (controls.gap + controls.supportRadius)*2, 100);
-		var horizontalGeometry = new THREE.CubeGeometry(controls.supportRadius*5.5, controls.supportRadius, controls.supportRadius * 7);
+		var verticalGeometry = new THREE.CylinderGeometry(controls.supportRadius, controls.supportRadius, (controls.gap + controls.supportRadius)*3, 100);
+		var horizontalGeometry = new THREE.CubeGeometry(controls.supportRadius*8, controls.supportRadius, controls.supportRadius * 7);
 		var nextX = 0;
 		var nextY = 0;
 		var pointsForRails = [];
@@ -156,9 +154,9 @@ $(function () {
 			step.position.z = nextY;
 			step.rotation.y = (Math.PI / 180 * controls.rotation) * i;
 		
-			var railX = nextX + (controls.width / 2 + controls.railRadius * 4) * Math.sin( -1 * (Math.PI / 180 * controls.rotation) * i);
+			var railX = nextX + (width / 2 + controls.railRadius * 4) * Math.sin( -1 * (Math.PI / 180 * controls.rotation) * i);
 			var railY = i * 2* controls.gap  + controls.railHeight + controls.gap;
-			var railZ = nextY + -1 * (controls.width / 2 + controls.railRadius * 4) * Math.cos(-1 *(Math.PI / 180 * controls.rotation) * i);
+			var railZ = nextY + -1 * (width / 2 + controls.railRadius * 4) * Math.cos(-1 *(Math.PI / 180 * controls.rotation) * i);
 			pointsForRails.push(new THREE.Vector3(railX, railY, railZ ));
 			
 			step.name = 'step';
@@ -169,8 +167,7 @@ $(function () {
 			if (i == controls.count - 1) step.add(addSecondFloor());
 		}
 		var straightTube = createTube(pointsForRails, 100, controls.railRadius, 30, metalicMaterial);
-		straightTube.name = 'straightTube';
-		scene.add(straightTube);
+		stairs.add(straightTube);
 		return stairs;
 	}
 	function createTube(points, tubularSegment, radius, radialSegments, material)
@@ -198,9 +195,9 @@ $(function () {
 	function railPoints()
 	{
 		var points = [];
-		points.push(new THREE.Vector3(0, controls.gap - controls.railRadius, (-controls.width / 4)));
-		points.push(new THREE.Vector3(0, controls.gap - controls.railRadius,  (-controls.width / 2)));
-		points.push(new THREE.Vector3(0, controls.gap + controls.railHeight, (-controls.width / 2 - controls.railRadius * 4)));
+		points.push(new THREE.Vector3(0, controls.gap + controls.railRadius, (-width / 4)));
+		points.push(new THREE.Vector3(0, controls.gap + controls.railRadius,  (-width / 2)));
+		points.push(new THREE.Vector3(0, controls.gap + controls.railHeight, (-width / 2 - controls.railRadius * 4)));
 		return points;
 	}
 	function addSecondFloor()
@@ -220,6 +217,6 @@ $(function () {
 		var gui = new dat.GUI();
 		gui.add(controls, 'count', 2, 30).step(1).name('Laiptu skaicius').onChange(controls.redraw);
 		gui.add(controls, 'angleDifference', -180, 180).step(1).name('Posukio kampas').onChange(controls.redraw);
-		gui.add(controls, 'stairHeight', 5, 40).step(1).name('Laiptų aukstis').onChange(controls.redraw);
+		gui.add(controls, 'stairHeight', 5, 30).step(1).name('Laiptų aukstis').onChange(controls.redraw);
 	}
 });
