@@ -4,6 +4,7 @@ $(function () {
 	var camera = addCamera();
     var radius = 10;
     var dots = 10000;
+    var dif = 0.7;
 	
     camera.lookAt(scene.position);
     var sphere = new THREE.Object3D();
@@ -56,7 +57,6 @@ $(function () {
 
 	function createSphere()
 	{
-        var dif = 0.7;
         var x, y, z;
         var points = [];
             for (var i = 0; i < dots; i++) {
@@ -76,7 +76,7 @@ $(function () {
             var material = new THREE.MeshBasicMaterial({color: 0xff0000, transparent: false});
             points.forEach(function (point) {
 
-                var spGeom = new THREE.SphereGeometry(0.2);
+                var spGeom = new THREE.SphereGeometry(0.1);
                 var spMesh = new THREE.Mesh(spGeom, material);
                 spMesh.position = point;
                 spGroup.add(spMesh);
@@ -109,8 +109,8 @@ $(function () {
                         y = vertex.y;
                         z = vertex.z;
                 }
-                uvs[ j ].x = 1 * (0.5 + (Math.atan2(z, x)) / (2 * Math.PI));
-                uvs[ j ].y = 0.5 + Math.asin(y)  / Math.PI;
+                uvs[ j ].x = 0.5 + ((Math.atan2(z, x)) / (2 * Math.PI));
+                uvs[ j ].y = 0.5 - Math.asin(y)  / Math.PI;
             }
             if (Math.abs(uvs[0].x - uvs[1].x) > dif || Math.abs(uvs[1].x - uvs[2].x) > dif || Math.abs(uvs[2].x - uvs[0].x) > dif){
                 if (uvs[0].x > dif) {
@@ -131,7 +131,7 @@ $(function () {
     function createMesh(geom) {
         var meshMaterial = new THREE.MeshBasicMaterial({map:THREE.ImageUtils.loadTexture("board.png")});
         meshMaterial.side = THREE.DoubleSide;
-        var wireFrameMat = new THREE.MeshBasicMaterial();
+        var wireFrameMat = new THREE.MeshBasicMaterial({color: 0x228B22});
         wireFrameMat.wireframe = true;
 
         var mesh = THREE.SceneUtils.createMultiMaterialObject(geom, [meshMaterial, wireFrameMat]);
