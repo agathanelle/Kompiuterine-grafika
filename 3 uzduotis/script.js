@@ -67,7 +67,7 @@ $(function () {
                 var oneside = Math.pow(x,2)+Math.pow(y,2)+Math.pow(z,2);
                 var otherside = Math.pow(radius,2);
 
-                if(oneside<=otherside)
+                if(oneside <= otherside)
                 {
                     points.push(new THREE.Vector3(x, y, z));
                 } 
