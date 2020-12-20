@@ -3,22 +3,91 @@ $(function () {
 	var renderer = createRenderer();
 	var camera = addCamera();
     var queen = addQueen();
+    var cameradolly = addBasicCamera();
+    var cameraabove = addBasicCamera();
+
+    cameraabove.position.x=15;
+	cameraabove.position.y=100;
+    cameraabove.position.z=0;
+    
+    var step = 0;
     camera.lookAt(scene.position);
-    console.log(scene.position);
     scene.add(createPlane());
     scene.add(queen);
-	scene.add(addAmbientLight());
+    queen.position.x = -20;
+    queen.position.y = 0.05;
+    queen.position.z = 35;
     scene.add(addSpotLight());
-	$("#WebGL-output").append(renderer.domElement);
-	var cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
-    //menu();
-	render();
-	
+    scene.add(addAmbientLight());
+    
+    $("#WebGL-output").append(renderer.domElement);
+    
+    var cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
+    var controls = new function()
+    {
+        this.freeCamera = false;
+        this.Letter = 'A';
+        this.Number = '1';
+        this.cameraNumber = 0;
+        this.oldX = -20;
+        this.oldY = 0.05;
+        this.oldZ = 35;
+        this.oldLetter = 0;
+        this.oldNumber = 0;
+        
+        this.moved = false;
+        this.dolly = false;
+        this.above = false;
+        this.QueenPosition = function()
+        {
+            step = 0;
+            this.moved = true;
+            this.dolly = false;
+        }
+        this.DollyZoom = function()
+        {
+            this.dolly = true;
+            this.above = false;
+            this.moved = false;
+        }
+
+        this.Above = function()
+        {
+            this.above = true;
+            this.dolly = false;
+            this.moved = false;
+        }
+        this.Stop = function()
+        {
+            camera.fov = 45;
+            this.dolly = false;
+            this.moved = false;
+            this.above = false;
+            this.freeCamera = false;
+        }
+
+    }
+    menu();
+    render();
+    
 	function render() {
-		renderer.render(scene, camera);
-		requestAnimationFrame(render);
-		cameraControls.update(); 
-		
+        if(controls.moved) 
+        {
+            queenPosition(controls.Letter, controls.Number);
+        }
+        if(controls.dolly)
+        {
+            dollyZoom();
+        }
+        if(controls.above) aboveCamera();
+        if(controls.freeCamera)
+        {
+            controls.above = false;
+            controls.dolly = false;
+            cameraControls.update();
+        } 
+        renderer.render(scene, camera);
+        requestAnimationFrame(render); 
 	}
 	function createRenderer()
 	{
@@ -34,9 +103,9 @@ $(function () {
 		var planeMaterial = new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture("board.png"), side: THREE.DoubleSide});
 		var plane = new THREE.Mesh(planeGeometry,planeMaterial);
 		plane.rotation.x=-0.5*Math.PI;
-		plane.position.x=15
-		plane.position.y=0
-		plane.position.z=0
+		plane.position.x=15;
+		plane.position.y=0;
+		plane.position.z=0;
 		plane.receiveShadow = true;
 		return plane;
 	}
@@ -58,11 +127,58 @@ $(function () {
 	function addCamera()
 	{
 		var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-		camera.position.x = -30;
-		camera.position.y = 40;
-		camera.position.z = 30;
+		FOV(camera);
 		return camera;
-	}
+    }
+    
+    function FOV(camera)
+    {
+        camera.position.x = 0;
+		camera.position.y = 100;
+        camera.position.z = 50;
+    }
+
+    function dollyZoom()
+    {
+        camera.lookAt(queen.position);
+            if(camera.position.y > 0 && camera.position.y < 300)
+            {
+                var x = queen.position.x - camera.position.x;
+                var y = camera.position.y - queen.position.y;
+                var z = queen.position.z - camera.position.z;
+                camera.position.x += (queen.position.x - camera.position.x)/100;
+                camera.position.y += (camera.position.y - queen.position.y)/100;
+                camera.position.z += (queen.position.z - camera.position.z)/100;
+                cameradolly.position.x = camera.position.x;
+                cameradolly.position.y = camera.position.y;
+                cameradolly.position.z = camera.position.z;
+                var distance = Math.sqrt(z*z+x*x+y*y);
+                var width = window.innerHeight/15;
+                camera.fov = (2 * Math.atan(width / (2 * distance))) * 180 / Math.PI;
+                camera.updateProjectionMatrix();
+            }
+            else
+            {
+                var x = queen.position.x - camera.position.x;
+                var y = camera.position.y - queen.position.y;
+                var z = queen.position.z - camera.position.z;
+                camera.position.x = (queen.position.x - camera.position.x)/100;
+                camera.position.y = (camera.position.y - queen.position.y)/100;
+                camera.position.z = (queen.position.z - camera.position.z)/100;
+                var distance = Math.sqrt(z*z+x*x+y*y);
+                var width = window.innerHeight/15;
+                camera.fov = (2 * Math.atan(width / (2 * distance))) * 180 / Math.PI;
+                camera.updateProjectionMatrix();
+            }
+    }
+
+    function aboveCamera()
+    {
+        camera.position.x=15;
+		camera.position.y=75;
+        camera.position.z=0;
+        camera.lookAt(queen.position);
+    }
 
     function addQueen()
     {
@@ -127,16 +243,50 @@ $(function () {
         var latheGeometry = new THREE.LatheGeometry(queenpoint, 12);
         var material = new THREE.MeshLambertMaterial({color: 0xfffff0, transparent: false});
         var queen = new THREE.Mesh(latheGeometry, material);
-        queen.position.x = 10;
-		queen.position.y = 0.05;
-		queen.position.z = 35;
         return queen;
     }
+
+    function addBasicCamera()
+    {
+        var geometry = new THREE.SphereGeometry( 5, 32, 32 );
+        var material = new THREE.MeshLambertMaterial({color: 0x00000F, transparent:false});
+        var basic = new THREE.Mesh(geometry, material);
+        return basic;
+    }
+
+    function queenPosition(letter, number)
+    {
+        if(controls.above) camera.lookAt(queen.position);
+        const letters = 'ABCDEFGH';
+        var letternumber = letters.indexOf(letter.toUpperCase());
+        if(letternumber < 0) return;
+        if(number < 0 || number > 8) return;
+        number--;
+        queen.position.x = controls.oldX + 10*((letternumber-controls.oldLetter)*step);
+        queen.position.y = 0.05;
+        queen.position.z = controls.oldZ - 10*((number-controls.oldNumber)*step);
+        if(step < 1)step=step+0.01;
+        else
+        {
+            controls.oldX = queen.position.x;
+            controls.oldY = queen.position.y;
+            controls.oldZ = queen.position.z;
+            controls.oldLetter = letternumber;
+            controls.oldNumber = number;
+            controls.moved = false;
+            return; 
+        }
+    }
+
 	function menu()
 	{
-		var gui = new dat.GUI();
-		gui.add(controls, 'count', 2, 25).step(1).name('Laiptu skaicius').onChange(controls.redraw);
-		gui.add(controls, 'angleDifference', -360, 360).step(1).name('Posukio kampas').onChange(controls.redraw);
-		gui.add(controls, 'stairHeight', 8, 30).step(1).name('Laiptų aukstis').onChange(controls.redraw);
-	}
+        var gui = new dat.GUI();
+        gui.add(controls, 'freeCamera').name('Free use camera');
+        gui.add(controls, 'Letter').name('Letter').listen();
+        gui.add(controls, 'Number').name('Number').listen();
+        gui.add(controls, 'QueenPosition').name('Move Queen');
+        gui.add(controls, 'Above').name('Above');
+        gui.add(controls, 'DollyZoom').name('Dolly Zoom');
+        gui.add(controls, 'Stop').name('Stop');
+    }
 });
