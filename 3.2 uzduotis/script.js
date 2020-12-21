@@ -1,15 +1,20 @@
 $(function () {
 	var scene = new THREE.Scene();
 	var renderer = createRenderer();
-	var camera = addCamera();
+    var camera = addCamera();
+    var dollyc = addCamera();
+    var abovec = addCamera();
     var queen = addQueen();
     var cameradolly = addBasicCamera();
     var cameraabove = addBasicCamera();
+    scene.add(cameradolly);
+    scene.add(cameraabove);
+    FOV(camera);
+    dollyView(dollyc);
+    dollyCamera(cameradolly);
+    aboveCamera(cameraabove);
+    aboveView(abovec);
 
-    cameraabove.position.x=15;
-	cameraabove.position.y=100;
-    cameraabove.position.z=0;
-    
     var step = 0;
     camera.lookAt(scene.position);
     scene.add(createPlane());
@@ -25,7 +30,7 @@ $(function () {
     var cameraControls = new THREE.TrackballControls(camera, renderer.domElement);
     var controls = new function()
     {
-        this.freeCamera = false;
+        
         this.Letter = 'A';
         this.Number = '1';
         this.cameraNumber = 0;
@@ -34,36 +39,42 @@ $(function () {
         this.oldZ = 35;
         this.oldLetter = 0;
         this.oldNumber = 0;
-        
+
         this.moved = false;
         this.dolly = false;
         this.above = false;
+        this.free = false;
+        this.cam = 1;
+        this.freeCamera = function()
+        {
+            this.cam = 1;
+            this.free = !this.free;
+        }
         this.QueenPosition = function()
         {
             step = 0;
             this.moved = true;
-            this.dolly = false;
         }
         this.DollyZoom = function()
         {
-            this.dolly = true;
-            this.above = false;
-            this.moved = false;
+            this.dolly = !this.dolly;
+            this.cam = 2;
+            dollyCamera(cameradolly);
+            dollyView(dollyc);
         }
 
         this.Above = function()
         {
-            this.above = true;
-            this.dolly = false;
-            this.moved = false;
+            this.above = !this.above;
+            this.cam = 3;
         }
         this.Stop = function()
         {
-            camera.fov = 45;
+            this.cam.fov = 45;
+            this.cam = 1;
             this.dolly = false;
             this.moved = false;
             this.above = false;
-            this.freeCamera = false;
         }
 
     }
@@ -71,6 +82,10 @@ $(function () {
     render();
     
 	function render() {
+        dollyc.lookAt(queen.position);
+        if(controls.cam == 1) renderer.render(scene, camera);
+        if(controls.cam == 2) renderer.render(scene, dollyc);
+        if(controls.cam == 3) renderer.render(scene, abovec);
         if(controls.moved) 
         {
             queenPosition(controls.Letter, controls.Number);
@@ -79,14 +94,16 @@ $(function () {
         {
             dollyZoom();
         }
-        if(controls.above) aboveCamera();
-        if(controls.freeCamera)
+        if(controls.above) 
         {
-            controls.above = false;
-            controls.dolly = false;
+            cameraabove.lookAt(queen.position);
+            aboveCamera(cameraabove);
+            aboveView(abovec);
+        }
+        if(controls.free)
+        {
             cameraControls.update();
         } 
-        renderer.render(scene, camera);
         requestAnimationFrame(render); 
 	}
 	function createRenderer()
@@ -127,7 +144,6 @@ $(function () {
 	function addCamera()
 	{
 		var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-		FOV(camera);
 		return camera;
     }
     
@@ -140,43 +156,54 @@ $(function () {
 
     function dollyZoom()
     {
-        camera.lookAt(queen.position);
-            if(camera.position.y > 0 && camera.position.y < 300)
-            {
-                var x = queen.position.x - camera.position.x;
-                var y = camera.position.y - queen.position.y;
-                var z = queen.position.z - camera.position.z;
-                camera.position.x += (queen.position.x - camera.position.x)/100;
-                camera.position.y += (camera.position.y - queen.position.y)/100;
-                camera.position.z += (queen.position.z - camera.position.z)/100;
-                cameradolly.position.x = camera.position.x;
-                cameradolly.position.y = camera.position.y;
-                cameradolly.position.z = camera.position.z;
-                var distance = Math.sqrt(z*z+x*x+y*y);
-                var width = window.innerHeight/15;
-                camera.fov = (2 * Math.atan(width / (2 * distance))) * 180 / Math.PI;
-                camera.updateProjectionMatrix();
-            }
-            else
-            {
-                var x = queen.position.x - camera.position.x;
-                var y = camera.position.y - queen.position.y;
-                var z = queen.position.z - camera.position.z;
-                camera.position.x = (queen.position.x - camera.position.x)/100;
-                camera.position.y = (camera.position.y - queen.position.y)/100;
-                camera.position.z = (queen.position.z - camera.position.z)/100;
-                var distance = Math.sqrt(z*z+x*x+y*y);
-                var width = window.innerHeight/15;
-                camera.fov = (2 * Math.atan(width / (2 * distance))) * 180 / Math.PI;
-                camera.updateProjectionMatrix();
-            }
+        dollyc.lookAt(queen.position);
+        cameradolly.lookAt(queen.position);
+        if(dollyc.position.x < -58)
+        {
+            var x = queen.position.x - cameradolly.position.x;
+            var y = cameradolly.position.y - queen.position.y;
+            var z = queen.position.z - cameradolly.position.z;
+            dollyc.position.x += (queen.position.x - dollyc.position.x)/100;
+            dollyc.position.z += (queen.position.z - dollyc.position.z)/100;
+            cameradolly.position.x += (queen.position.x - cameradolly.position.x)/100;
+            cameradolly.position.z += (queen.position.z - cameradolly.position.z)/100;
+            var distance = Math.sqrt(z*z+x*x+y*y);
+            var width = window.innerHeight/15;
+            dollyc.fov = (2 * Math.atan(width / (2 * distance))) * 180 / Math.PI;
+            dollyc.updateProjectionMatrix();
+        }
     }
 
-    function aboveCamera()
+    function aboveCamera(camera)
     {
         camera.position.x=15.5;
 		camera.position.y=75;
-        camera.position.z=0.9;
+        camera.position.z=0.8;
+        camera.lookAt(queen.position);
+    }
+
+    function dollyCamera(camera)
+    {
+        camera.position.x = -140;
+        camera.position.y = 10;
+        camera.position.z = 70;
+        camera.lookAt(queen.position);
+    }
+
+    function dollyView(camera)
+    {
+        camera.position.x = -100;
+        camera.position.y = 15;
+        camera.position.z = 50;
+        camera.lookAt(queen.position);
+        camera.fov = 45;
+    }
+
+    function aboveView(camera)
+    {
+        camera.position.x=13.5;
+		camera.position.y=53;
+        camera.position.z=1.8;
         camera.lookAt(queen.position);
     }
 
@@ -241,17 +268,27 @@ $(function () {
             queenpoint.push(points[i]);
         }
         var latheGeometry = new THREE.LatheGeometry(queenpoint, 12);
-        var material = new THREE.MeshLambertMaterial({color: 0xfffff0, transparent: false});
+        var material = new THREE.MeshLambertMaterial({color: 0xfffff0, transparent: false, side: THREE.DoubleSide});
+        material.flipY = true;
         var queen = new THREE.Mesh(latheGeometry, material);
         return queen;
     }
 
     function addBasicCamera()
     {
-        var geometry = new THREE.SphereGeometry( 5, 32, 32 );
-        var material = new THREE.MeshLambertMaterial({color: 0x00000F, transparent:false});
+        var cameraBox = new THREE.Object3D();
+        var geometry = new THREE.BoxBufferGeometry(7,7,14);
+        var geometry2 = new THREE.CylinderBufferGeometry(2,6,2.5,16);
+        var material = new THREE.MeshLambertMaterial({color: 0xFF000F, transparent:false, side:THREE.DoubleSide});
         var basic = new THREE.Mesh(geometry, material);
-        return basic;
+        var basic2 = new THREE.Mesh(geometry2, material);
+        basic.rotation.y = Math.PI;
+        basic.position.z = 12;
+        basic2.rotation.x = -Math.PI/2;
+        basic2.position.z = 20;
+        cameraBox.add(basic);
+        cameraBox.add(basic2);
+        return cameraBox;
     }
 
     function queenPosition(letter, number)
