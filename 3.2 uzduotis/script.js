@@ -174,9 +174,9 @@ $(function () {
 
     function aboveCamera()
     {
-        camera.position.x=15;
+        camera.position.x=15.5;
 		camera.position.y=75;
-        camera.position.z=0;
+        camera.position.z=0.9;
         camera.lookAt(queen.position);
     }
 
@@ -256,7 +256,6 @@ $(function () {
 
     function queenPosition(letter, number)
     {
-        if(controls.above) camera.lookAt(queen.position);
         const letters = 'ABCDEFGH';
         var letternumber = letters.indexOf(letter.toUpperCase());
         if(letternumber < 0) return;
