@@ -59,12 +59,12 @@
         if (vPosition.y > -1.2 && vPosition.y < 4.0 && vPosition.x < 19.0 && vPosition.x > -19.0)
         {
             // uv coordinates
-            float u = fract(vUv.x * uScale)-0.5;
-            float v = fract(vUv.y * uScale)-0.5;
+            float u = abs(fract(vUv.x * uScale)-0.5);
+            float v = abs(fract(vUv.y * uScale)-0.5);
         
             // 45 degrees rotation
             //float f = (u+v)*(v-u);
-            float f = abs(u) + abs(v) - 0.5;
+            float f = u + v - 0.5;
             float grad = length(vec2(dFdx(f),dFdy(f))); 
             float d = uEdge*grad;
             float edgeFactor = smoothstep(-d, d, f);
@@ -72,16 +72,16 @@
             vec3 finalColor = mix(blue, cyan,edgeFactor);
         
             //no rotation (red color)
-            f = max(abs(u), abs(v)) - 0.25;
+            f = max(u, v) - 0.25;
             grad = length(vec2(dFdx(f),dFdy(f))); 
             d = uEdge*grad;
             edgeFactor = smoothstep(-d, d, f);
             finalColor = mix(red, finalColor, edgeFactor);
         
             // no rotation (yellow color)
-            u = fract(u) - 0.5;
-            v = fract(v) - 0.5;
-            f = max(abs(u), abs(v)) - 0.25;
+            u = abs(fract(u) - 0.5);
+            v = abs(fract(v) - 0.5);
+            f = max(u, v) - 0.25;
             grad = length(vec2(dFdx(f),dFdy(f))); 
             d = uEdge*grad;
             edgeFactor = smoothstep(-d, d, f);
