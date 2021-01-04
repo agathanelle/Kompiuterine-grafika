@@ -56,7 +56,7 @@
         float intensity = dot(lightDir,normalize(vNormal));
         vec3 color = vec3(intensity);
 
-        if (vPosition.y > -1.2 && vPosition.y < 4.0 && vPosition.x < 19.0 && vPosition.x > -19.0)
+        if (vPosition.y > -1.1 && vPosition.y < 4.0 && vPosition.x < 19.0 && vPosition.x > -19.0)
         {
             // uv coordinates
             float u = abs(fract(vUv.x * uScale)-0.5);
@@ -90,7 +90,7 @@
             finalColor = mix(yellow, finalColor, edgeFactor);
             gl_FragColor = vec4(finalColor*color, 1.0);
         }
-            else gl_FragColor = vec4(color,1.0);
+        else gl_FragColor = vec4(color,1.0);
 	}
 </script>
 
