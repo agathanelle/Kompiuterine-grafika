@@ -72,7 +72,8 @@
             vec3 finalColor = mix(blue, cyan,edgeFactor);
         
             //no rotation (red color)
-            f = max(u, v) - 0.25;
+            if(u >= v) f = u - 0.25;
+            else f = v - 0.25;
             grad = length(vec2(dFdx(f),dFdy(f))); 
             d = uEdge*grad;
             edgeFactor = smoothstep(-d, d, f);
@@ -81,7 +82,8 @@
             // no rotation (yellow color)
             u = abs(fract(u) - 0.5);
             v = abs(fract(v) - 0.5);
-            f = max(u, v) - 0.25;
+            if(u >= v) f = u - 0.25;
+            else f = v - 0.25;
             grad = length(vec2(dFdx(f),dFdy(f))); 
             d = uEdge*grad;
             edgeFactor = smoothstep(-d, d, f);
